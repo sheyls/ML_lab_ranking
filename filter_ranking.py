@@ -4,6 +4,7 @@ from spacy.lang.en.stop_words import STOP_WORDS
 # Use STOP_WORDS provided by spaCy as stop_words
 stop_words = STOP_WORDS
 
+
 def filter(query: str, df: pd.DataFrame) -> pd.DataFrame:
     """
     Filter the dataframe based on the query and return the modified dataframe with a ternary ranking system:
@@ -15,7 +16,7 @@ def filter(query: str, df: pd.DataFrame) -> pd.DataFrame:
     :param df: The dataframe to filter
     :return: A dataframe with the column 'score' added, sorted by score
     """
-    
+
     def compute_score(text):
         # Standardize text and query
         text = text.lower()
