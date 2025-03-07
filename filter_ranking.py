@@ -1,5 +1,5 @@
 import pandas as pd
-from spacy.lang.en.stop_words import STOP_WORDS
+#from spacy.lang.en.stop_words import STOP_WORDS
 
 # Use STOP_WORDS provided by spaCy as stop_words
 stop_words = STOP_WORDS
@@ -24,18 +24,16 @@ def ranking(query: str, df: pd.DataFrame) -> pd.DataFrame:
         text = text.replace(',', ' ')
         # Remove stopwords using spaCy's list
         text = ' '.join([word for word in text.split() if word not in stop_words])
-
-        # Exact match: query appears completely in the text.
-        if q in text:
+        
+        text_words = set(text.split())
+        query_words = set(q.split())
+        
+        # Exact match: all words from the query are present in the text (regardless of order or position)
+        if query_words.issubset(text_words):
             return 1
-        # Partial match: any word from the query appears in the text.
-        elif any(word in text for word in q.split()):
+        # Partial match: at least one word from the query is in the text
+        elif query_words.intersection(text_words):
             return 2
-        # No match.
+        # No match: none of the words are present
         else:
             return 3
-    print(query)
-    print(df)
-    df['score'] = df['long_common_name'].apply(compute_score)
-    df = df.sort_values(by='score')
-    return df
