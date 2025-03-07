@@ -1,5 +1,5 @@
 import pandas as pd
-#from spacy.lang.en.stop_words import STOP_WORDS
+from spacy.lang.en.stop_words import STOP_WORDS
 
 # Use STOP_WORDS provided by spaCy as stop_words
 stop_words = STOP_WORDS
@@ -37,3 +37,7 @@ def ranking(query: str, df: pd.DataFrame) -> pd.DataFrame:
         # No match: none of the words are present
         else:
             return 3
+    
+    df['score'] = df['text'].apply(compute_score)
+    df = df.sort_values(by='score')
+    return df

@@ -5,4 +5,4 @@ if __name__ == '__main__':
     DE = DataExtraction()
     query, parsed_df, df = DE.parsing_df()
     df_ranked = ranking(query, df)
-    print(df)
+    print(df_ranked)
