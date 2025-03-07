@@ -5,7 +5,7 @@ from spacy.lang.en.stop_words import STOP_WORDS
 stop_words = STOP_WORDS
 
 
-def filter(query: str, df: pd.DataFrame) -> pd.DataFrame:
+def ranking(query: str, df: pd.DataFrame) -> pd.DataFrame:
     """
     Filter the dataframe based on the query and return the modified dataframe with a ternary ranking system:
     - If the query is in the text, match almost completely -> score = 1
@@ -34,7 +34,8 @@ def filter(query: str, df: pd.DataFrame) -> pd.DataFrame:
         # No match.
         else:
             return 3
-
-    df['score'] = df['text'].apply(compute_score)
+    print(query)
+    print(df)
+    df['score'] = df['long_common_name'].apply(compute_score)
     df = df.sort_values(by='score')
     return df

@@ -18,7 +18,7 @@ class DataExtraction():
             'bilirubin in plasma',
             'White blood cells count'
         ]
-        self.sheet_name = sheet_names[2]
+        self.sheet_name = sheet_names[0]
 
     def extracting_query(self, df):
         """
@@ -70,7 +70,7 @@ class DataExtraction():
         )
         query = self.extracting_query(df)
         parsed_df = self.extracting_df(df)
-        df_filtered = parsed_df[['loinc_num', 'long_common_name']]
+        df_filtered = parsed_df[['long_common_name']]
         return query, parsed_df, df_filtered
 
 
