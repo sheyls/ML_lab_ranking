@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 from spacy.lang.en.stop_words import STOP_WORDS
 
@@ -18,13 +20,20 @@ def ranking(query: str, df: pd.DataFrame) -> pd.DataFrame:
     :return: A dataframe with the column 'score' added, sorted by score
     """
 
+    def clean_text(text):
+        # Eliminar caracteres especiales y puntuación (manteniendo solo letras y espacios)
+        text = re.sub(r'[^a-zA-Z\s]', ' ', text)
+        text = ' '.join([word for word in text.split() if word not in stop_words])
+        return text
+
     def compute_score(text):
         # Standardize text and query
         text = text.lower()
         q = query.lower()  # use a local variable to avoid modifying the outer query
         text = text.replace(',', ' ')
         # Remove stopwords using spaCy's list
-        text = ' '.join([word for word in text.split() if word not in stop_words])
+        q = clean_text(q)
+        text = clean_text(text)
 
         text_words = set(text.split())
         query_words = set(q.split())
@@ -40,6 +49,6 @@ def ranking(query: str, df: pd.DataFrame) -> pd.DataFrame:
         else:
             return 3
 
-    df['score'] = df['text'].apply(compute_score)
+    df['score'] = df['long_common_name'].apply(compute_score)
     df = df.sort_values(by='score')
     return df
