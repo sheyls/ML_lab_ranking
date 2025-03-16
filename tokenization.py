@@ -7,6 +7,29 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
+import config
+from nltk import word_tokenize
+from nltk.corpus import stopwords
+from string import punctuation
+import nltk
+
+nltk.download('punkt_tab', download_dir=config.NLTK_DIR)
+nltk.download('stopwords', download_dir=config.NLTK_DIR)
+nltk.data.path.append(config.NLTK_DIR)
+
+STOP_WORDS = set(stopwords.words('english'))
+
+
+def preprocess_sentence(text):
+    text = text.replace('/', ' / ')
+    text = text.replace('.-', ' .- ')
+    text = text.replace('.', ' . ')
+    text = text.replace('\'', ' \' ')
+    text = text.lower()
+
+    tokens = [token for token in word_tokenize(text) if token not in punctuation and token not in STOP_WORDS]
+
+    return tokens
 
 def preprocess_data():
     # Download the punkt tokenizer if not already downloaded
