@@ -16,7 +16,9 @@ class DataExtraction():
         sheet_names = [
             'glucose in blood',
             'bilirubin in plasma',
-            'White blood cells count'
+            'White blood cells count',
+            'Creatinine in blood',
+            'Cholesterol In Plasma'
         ]
         self.sheet_name = sheet_names[0]
 
