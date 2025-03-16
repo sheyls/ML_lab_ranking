@@ -7,7 +7,7 @@ from tensorflow.keras.models import load_model
 from sklearn.metrics import accuracy_score, f1_score
 
 
-def train(dataset_df=pd.read_csv(config.EXTRA_DF_PATH, sep=';'), loinc_df = pd.read_csv(config.LOINC_PATH), batch_size=64, epochs=1):
+def train(dataset_df=pd.read_csv(config.EXTRA_DF_PATH, sep=';'), loinc_df = pd.read_csv(config.LOINC_PATH), batch_size=8, epochs=50):
     """
 
     :param dataset_df: It has to be in shape TARGET (valid loinc code), QUERY (a sentence string), RELEVANCE (an integer from -1, 0, 1)
@@ -16,7 +16,7 @@ def train(dataset_df=pd.read_csv(config.EXTRA_DF_PATH, sep=';'), loinc_df = pd.r
 
     embedding = Embedding(debug=False, loinc=loinc_df)
 
-    test_split = 0.05
+    test_split = 0.1
     train_sz = int(len(dataset_df) * (1 - test_split))
     val_sz = int(len(dataset_df) * (test_split))
     val_batch = 2 * batch_size
@@ -145,6 +145,6 @@ if __name__ == '__main__':
 
 
     # TRAIN or VALIDATE
-    train(dataset_df, loinc_df)
-    # validate(model_path="./model/trained_model.keras", dataset_df=dataset_df, loinc_df=loinc_df)
+    # train(dataset_df, loinc_df)
+    validate(model_path="./model/best_model.keras", dataset_df=dataset_df, loinc_df=loinc_df)
 
