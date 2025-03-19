@@ -4,15 +4,26 @@ import pandas as pd
 
 
 class DataExtraction():
-    def __init__(self, sheet_name) -> None:
+    def __init__(self, sheet_name=None) -> None:
         """
         Initializes the DataExtraction class.
 
         - Sets the default path to the current working directory.
-        - Performs the ranking for the selected sheet name.
+        - Defines a list of sheet names.
+        - Selects 'White blood cells count' as the default sheet name.
         """
         self.path = Path.cwd()
-        self.sheet_name = sheet_name
+        sheet_names = [
+            'glucose in blood',
+            'bilirubin in plasma',
+            'White blood cells count',
+            'Creatinine in blood',
+            'Cholesterol In Plasma'
+        ]
+        if sheet_name == None:
+            self.sheet_name = sheet_names[0]
+        else:
+            self.sheet_name = sheet_name
 
     def extracting_query(self, df):
         """
@@ -67,6 +78,63 @@ class DataExtraction():
         df_filtered = parsed_df[['long_common_name']]
         return query, parsed_df, df_filtered
 
+
+def testing_dataset_with_jaccard():
+    import pandas as pd
+    from sklearn.metrics import jaccard_score
+    from sklearn.feature_extraction.text import CountVectorizer
+    from tqdm import tqdm
+    loinc_path = "./dataset/LoincTableCore/LoincTableCore.csv"
+    df = pd.read_csv(loinc_path)
+    df_useful = df[["LOINC_NUM", "COMPONENT"]]
+    df_useful.rename(columns={"LOINC_NUM": "TARGET", "COMPONENT": "QUERY"}, inplace=True)
+
+    # Convert queries to a binary bag-of-words matrix
+    vectorizer = CountVectorizer(binary=True)
+    query_matrix = vectorizer.fit_transform(df_useful["QUERY"])
+
+    # Set a threshold for 'close to zero'
+    bad_threshold = 0.01  # Adjust this value if necessary
+    mediocre_interval = (0.4, 0.7)
+
+    # Compute Jaccard similarity for each pair and filter pairs close to zero
+    pairs_filtered = []
+    bad_cases = 0
+    mediocre_cases = 0
+    progress_bar = tqdm(total=df_useful.shape[0], desc="Processing pairs")
+    n_pairs = len(df_useful)  # Set the number of random pairs you want
+    sz = len(df_useful)
+    indices = np.random.uniform(size=(n_pairs, 2))
+
+    for k in range(n_pairs):
+        pair = np.round(indices[k] * sz).astype(int)
+        i, j = pair
+        # Convert the sparse vectors to dense arrays for computation
+        vec_i = query_matrix[i].toarray()[0]
+        vec_j = query_matrix[j].toarray()[0]
+        jac_sim = jaccard_score(vec_i, vec_j)
+
+        if jac_sim <= bad_threshold:
+            a, b = df_useful.iloc[i]["QUERY"], df_useful.iloc[j]["QUERY"]
+            pairs_filtered.append((df_useful.iloc[i]["TARGET"], df_useful.iloc[j]["QUERY"], -1))
+            bad_cases += 1
+            progress_bar.update(1)  # Manually update the tqdm bar
+        elif mediocre_interval[0] < jac_sim < mediocre_interval[1]:
+            a, b = df_useful.iloc[i]["QUERY"], df_useful.iloc[j]["QUERY"]
+            pairs_filtered.append((df_useful.iloc[i]["TARGET"], df_useful.iloc[j]["QUERY"], 0))
+            mediocre_cases += 1
+            progress_bar.update(1)  # Manually update the tqdm bar
+
+        if bad_cases + mediocre_cases >= df_useful.shape[0]:
+            break
+
+    # Convert the filtered results to a DataFrame
+    df_useful['RELEVANCE'] = 1
+    extra_queries = pd.DataFrame(pairs_filtered, columns=["TARGET", "QUERY", "RELEVANCE"])
+
+    dataset = pd.concat([df_useful, extra_queries], ignore_index=True)
+    dataset.to_csv("./extra_queries.csv", index=False, sep=";")
+    print(extra_queries)
 
 if __name__ == "__main__":
     DE = DataExtraction()
