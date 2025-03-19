@@ -4,23 +4,15 @@ import pandas as pd
 
 
 class DataExtraction():
-    def __init__(self) -> None:
+    def __init__(self, sheet_name) -> None:
         """
         Initializes the DataExtraction class.
 
         - Sets the default path to the current working directory.
-        - Defines a list of sheet names.
-        - Selects 'White blood cells count' as the default sheet name.
+        - Performs the ranking for the selected sheet name.
         """
         self.path = Path.cwd()
-        sheet_names = [
-            'glucose in blood',
-            'bilirubin in plasma',
-            'White blood cells count',
-            'Creatinine in blood',
-            'Cholesterol In Plasma'
-        ]
-        self.sheet_name = sheet_names[0]
+        self.sheet_name = sheet_name
 
     def extracting_query(self, df):
         """
